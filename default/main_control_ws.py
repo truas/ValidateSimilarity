@@ -16,14 +16,13 @@ import os
 from default import process_synsets as pr
 from default import io_operations as io
 from default import sim_calc as sc
-from datetime import timedelta
 from stop_words import get_stop_words
 
 #folders-files
 in_foname = 'C:/tmp_project/ValidateSimilarity/input_ws'
 ou_foname = 'C:/tmp_project/ValidateSimilarity/output'
 #mo_foname = 'C:/Users/terry/Documents/Datasets/Wikipedia_Dump/2018_01_20/models/dbsd/500d-neg-10w-2mc-sg/wikidump20180120-500d-neg-10w-2mc-sg.vector'
-mo_foname = 'C:/Users/terry/Documents/Datasets/Wikipedia_Dump/2010_04_08/models/300d-hs-15w-10mc-cbow.model'
+mo_foname = 'C:/Users/terry/Documents/Datasets/Wikipedia_Dump/2010_04_08/models/refine/300d-05w-05w-hs-sg-rf.model'
 
 range_category = {'cos': 0, 'ws353': 1, 'simlex': 1,'stanford': 1, 'simverb': 1, 'rg65': 2, 'mc28': 2, 'yp130': 2, 'men': 3}
                       #0        #1        #2        

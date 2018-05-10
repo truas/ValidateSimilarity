@@ -20,20 +20,7 @@ class Stanford_Data(object):
         self.sent1 = sent1 #target word  between <b> </b>
         self.sent2 = sent2 #target word  between <b> </b>
         self.simvalue = simvalue
-        
-#class for words and their synset vectors
-class Words_Data(object):
-    def __init__(self):
-        self.word = None
-        self.semantics = None #list of 'Semantic_Data' objects
-
-#class for semantic vector feature 
-class Semantic_Data(object):
-    def __init__(self):
-        self.offset = None
-        self.pos = None
-        self.vector = None
-        
+              
 class Context_Data(object):
     def __init__(self, word1, word2, sentence1, sentence2):
         self.word1 = word1
@@ -42,3 +29,39 @@ class Context_Data(object):
         self.raw2 = sentence2
         self.ste1 = None #cleaned data for sentence 1
         self.ste2 = None #cleaned data for sentence 2
+        
+class WN_Token_Data(object):
+    def __init__(self, word1, word2):
+        self.word1 = word1
+        self.word2 = word2
+        self.context1 = None
+        self.context2 = None
+        self.simvalue = None        
+        
+#===============================================================================
+# Data Related to WordNet Approach
+#===============================================================================
+
+class WNData(object): 
+    def __init__(self, sys_id, offset, pos, gloss):
+        self.sys_id = sys_id
+        self.offset = offset
+        self.pos = pos
+        self.gloss = gloss
+        self.gloss_avg_vec = list()
+        self.vector = [] #in case embedding is using word-offset-pos
+#WordNet object for sentence
+
+#'WordsData' object for word in a 'Document'
+class WordsData(object):
+    def __init__(self, word):
+        self.word = word #word itself
+        self.wndatapack = None #list of WNData
+        self.prime_sys = None #the 'PrimeData' containing SynsetID, Offset and POS for later retrieval   
+
+#prime 'SynsetData'(prime_sys) in  'WordsData'   
+class PrimeData(object):
+    def __init__(self, psys_id, poffset, ppos):
+        self.psys_id = psys_id
+        self.poffset = poffset
+        self.ppos = ppos

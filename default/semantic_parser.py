@@ -5,6 +5,7 @@ Created on Apr 27, 2018
 '''
 #general libs
 import re
+import numpy
 from nltk.tokenize import RegexpTokenizer
 from stop_words import get_stop_words
 from nltk.corpus import wordnet as wn
@@ -12,6 +13,7 @@ from nltk.corpus import wordnet as wn
 #my packages
 from default import process_synsets as ps
 from default import bench_data
+from default import wn_synsets_parser as wsp
 
 
 def key_parser(word, synset):
@@ -58,5 +60,91 @@ def tokenize_text(text):
     
     return(nonumber_text)
 #cleans gloss words from numbers and stopwords
+
+#===============================================================================
+# WordNet Stuff
+#===============================================================================
+def wn_sentence_handler(tokens_wn, trained_model):
+    wn_token_objects = []
+    
+    for token_wn in tokens_wn:
+
+        clean_context_a = validate_context_wn(token_wn.ste1)
+        clean_context_b = validate_context_wn(token_wn.ste2)
+
+        if not clean_context_a:
+            context_a_representation = None
+        else:
+            pcontex_a = wsp.build_word_data(clean_context_a)
+            context_elems_a = wsp.gloss_average_np(pcontex_a, trained_model)
+            context_bsds_a = wsp.make_bsd(context_elems_a)
+            context_a_representation = wn_key_parser(context_bsds_a)
         
+        if not clean_context_b:
+            context_b_representation = None
+        else:
+            pcontex_b = wsp.build_word_data(clean_context_b)
+            context_elems_b = wsp.gloss_average_np(pcontex_b, trained_model)
+            context_bsds_b = wsp.make_bsd(context_elems_b)
+            context_b_representation = wn_key_parser(context_bsds_b)
+        
+        wn_token_obj = bench_data.WN_Token_Data(token_wn.word1, token_wn.word2)
+        wn_token_obj.context1 = context_a_representation
+        wn_token_obj.context2 = context_b_representation
+        wn_token_objects.append(wn_token_obj)
+        
+    return(wn_token_objects)
+#transforms sentences in sequences of synset-keys following BSD Algorithm
+
+def validate_context_wn(sentence_tokens):
+    valid_tokens = []
+    for sentence_token in sentence_tokens: 
+        synsets = wn.synsets(sentence_token)  # @UndefinedVariable
+        if not synsets:
+            continue
+        else:
+            valid_tokens.append(sentence_token)
+            
+    return(valid_tokens)    
+#take elements that only exist in wordnet  
+
+def validate_context_model(sentence_tokens, trained_model):
+    valid_tokens = []
+    for sentence_token in sentence_tokens: 
+        try:
+            synsets = wn.synsets(sentence_token)  # @UndefinedVariable
+            valid_tokens.append(sentence_token)
+        except KeyError:
+            pass
+    return(valid_tokens)    
+#take elements that only exist in the model   
+ 
+def wn_key_parser(words_data):
+    bsd_items = []
+    for item_word_data in words_data:
+        key = item_word_data.word.lower() +'#'+str(item_word_data.prime_sys.poffset)+'#'+item_word_data.prime_sys.ppos
+        bsd_items.append(key)
+    #key1 = word.lower() +'#'+str(synset.offset())+'#'+synset.pos()
+    return(bsd_items)
+#parse word/synsets into key format for the model - for WN-BSD entries
+ 
+def naive_wnkey_parser(word, offset, pos):
+    return(word.lower() +'#'+str(offset)+'#'+pos)
+#Transforms word,offset,pos into key that is used in synset2vec model
+ 
+def retrieve_synsetvec(key, model):
+    try:
+        tmp_vec = model.word_vec(key)
+    except KeyError:
+        tmp_vec = [0.0] #key not in the model we set as 0.0
+    return(tmp_vec)
+#returns the dimension/values of a key in a word-embedding model
+
+def synset_all(word):
+    return wn.synsets(word)  # @UndefinedVariable
+#synsets for all POS
+
+def synset_pos(word, cat):
+    return wn.synsets(word, cat)  # @UndefinedVariable
+#synsets for specific POS       
     

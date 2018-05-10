@@ -189,6 +189,56 @@ def globalSimC(contex_a, context_b, type_range):
         
     return (global_simc)
 
+#===============================================================================
+# WORDNET CONTEXT SIM
+#===============================================================================
+def wn_context_sim(new_tokens, trained_model, type_range, metric='maxsimc'):
+    moretokens =[]
+
+    for token in new_tokens:
+        word_a = token.word1
+        word_b = token.word2
+        #list of synset pairs
+        synsets_a = wn.synsets(word_a)  # @UndefinedVariable
+        synsets_b = wn.synsets(word_b)  # @UndefinedVariable
+        
+        #average vector for the context for each word
+        context_a = wn_context_parser(token.context1, trained_model) if token.context1 else 0.0
+        context_b = wn_context_parser(token.context2, trained_model) if token.context1 else 0.0
+        
+        
+        #clean synsets that only exist in the model
+        vec_syna = sp.validate_synsets_model(word_a, synsets_a, trained_model)
+        vec_synb = sp.validate_synsets_model(word_b, synsets_b, trained_model)
+        
+        vec_syna = [0.0] if not vec_syna else vec_syna
+        vec_synb = [0.0] if not vec_synb else vec_synb
+        
+        if metric == 'maxsimc':
+            sim_value = maxSimC(vec_syna, context_a, vec_synb, context_b, type_range)
+        elif metric == 'avgsimc':
+            sim_value = avgSimC(vec_syna, context_a, vec_synb, context_b, type_range)
+        elif metric == 'globalsimc':
+            sim_value = globalSimC(context_a, context_b, type_range)
+        
+        print(word_a, word_b, sim_value)
+        
+        token_prime = bench_data.Token_Data(word_a, word_b, sim_value)
+        moretokens.append(token_prime)
+    return(moretokens)    
+#calculates the similarity of two words given a context
+
+def wn_context_parser(keys, trained_model):
+    context_vector = []
+    for key in keys:
+        try:
+            v1 = trained_model.word_vec(key)
+            context_vector.append(v1) #put all vector words in the sentence together and average later
+        except KeyError:
+            pass #key not in the model
+    
+    return(numpy.average(context_vector, axis=0))
+#give the average vector from all words in the context - discard the achor_word in the context
 
 
 #===============================================================================

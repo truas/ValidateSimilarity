@@ -23,8 +23,9 @@ from stop_words import get_stop_words
 #folders-files
 in_foname = 'C:/tmp_project/ValidateSimilarity/input_cs'
 ou_foname = 'C:/tmp_project/ValidateSimilarity/output'
-#mo_foname = 'C:/Users/terry/Documents/Datasets/Wikipedia_Dump/2018_01_20/models/dbsd/500d-neg-10w-2mc-sg/wikidump20180120-500d-neg-10w-2mc-sg.vector'
-mo_foname = 'C:/Users/terry/Documents/Datasets/Wikipedia_Dump/2010_04_08/models/refine/300d-05w-05w-hs-sg-rf.model'
+mo_w2v = 'C:/Users/terry/Documents/Datasets/GoogleNews/GoogleNews-vectors-negative300.bin'
+mo_s2v = 'C:/Users/terry/Documents/Datasets/Wikipedia_Dump/2010_04_08/models/300d-hs-15w-10mc-cbow.model'
+
 
 range_category = {'cos': 0, 'ws353': 1, 'simlex': 1,'stanford': 1, 'simverb': 1, 'rg65': 2, 'mc28': 2, 'yp130': 2, 'men': 3}
                       #0        #1        #2         
@@ -75,8 +76,9 @@ if __name__ == '__main__':
 #===============================================================================
     
     #Loads
-    #trained_w2v_model = gensim.models.KeyedVectors.load_word2vec_format(mo_foname, binary=False) #If the model is not binary set binary=False
-    trained_w2v_model = gensim.models.KeyedVectors.load(mo_foname) #model.load used with .model extension - this files has to be in the same folder as its .npy
+    w2v_model = gensim.models.KeyedVectors.load_word2vec_format(mo_w2v, binary=True) #in case word2vec is provided
+    s2v_model = gensim.models.KeyedVectors.load(mo_s2v) #model.load used with .model extension - this files has to be in the same folder as its .npy
+
     results = ""
     
     docs = io.doclist_multifolder(in_foname)#creates list of documents to parse
@@ -88,14 +90,11 @@ if __name__ == '__main__':
    #Stanford - 4
    #============================================================================
     tokens = pr.process_stanford(docs[0])
-    new_tokens = sp.sentence_adapter(tokens)
-    better_tokens = sc.context_sim(new_tokens, trained_w2v_model, range_category['stanford'], MC)
+    wn_tokens = sp.sentence_adapter(tokens)
+    wn_tokens_processed = sp.wn_sentence_handler(wn_tokens, w2v_model)
+    better_tokens = sc.wn_context_sim(wn_tokens_processed,s2v_model, range_category['stanford'], MC)
     results += sc.spearman_pearson_correlation(tokens, better_tokens)
 
-    #new_tokens = sc.synset_similarity(tokens, trained_w2v_model, range_category['stanford'])
-    #io.write_ind_tokens(ou_foname, docsnames[0], new_tokens)
-    
-    
    
     print('\n', results, '\n') #Print results for WS benchmark - divided by 'tab' and in order of execution p-value, p-rho,s-value, s-rho
          
