@@ -87,9 +87,8 @@ if __name__ == '__main__':
    #============================================================================
    #Stanford - 4
    #============================================================================
-    tokens = pr.process_stanford(docs[0])
-    new_tokens = sp.sentence_adapter(tokens)
-    better_tokens = sc.context_sim(new_tokens, trained_w2v_model, range_category['stanford'], MC)
+    tokens = pr.sentece_wrapper(docs[0])
+    better_tokens = sc.context_sim(tokens, trained_w2v_model, range_category['stanford'], MC)
     results += sc.spearman_pearson_correlation(tokens, better_tokens)
 
     #new_tokens = sc.synset_similarity(tokens, trained_w2v_model, range_category['stanford'])

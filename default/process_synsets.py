@@ -5,6 +5,7 @@ Created on Apr 2, 2018
 '''
 
 from default import bench_data
+from default import semantic_parser as sp
 
 
 def process_ws353(file):
@@ -93,6 +94,23 @@ def process_stanford(file):
             tmp_token = bench_data.Stanford_Data(block[1], block[2], block[3], block[4], block[5], block[6], float(block[7].strip('\n')))
             tokens_list.append(tmp_token)
     return(tokens_list)
+#creates a list of Stanford linear mapped from 0.0 to 10.0
+
+def sentece_wrapper(file):
+    tokens_list = []
+    print('Processing %s' %file)
+    with open(file, 'r', encoding='utf-8') as fin:
+        for line in fin:
+            block = line.split('\t') #delimiter
+            work_token = bench_data.Work_Data()
+            work_token.word1 = block[1]
+            work_token.word2 = block[3]
+            work_token.sent1 = sp.tokenize_text(block[5])
+            work_token.sent2 = sp.tokenize_text(block[6])
+            work_token.simvalue = float(block[7].strip('\n'))
+            tokens_list.append(work_token)
+    return(tokens_list)
+#reads and wrap tokens separated  by <tab>
 #creates a list of Stanford linear mapped from 0.0 to 10.0
 
 

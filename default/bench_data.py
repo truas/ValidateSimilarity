@@ -20,16 +20,18 @@ class Stanford_Data(object):
         self.sent1 = sent1 #target word  between <b> </b>
         self.sent2 = sent2 #target word  between <b> </b>
         self.simvalue = simvalue
-              
-class Context_Data(object):
-    def __init__(self, word1, word2, sentence1, sentence2):
-        self.word1 = word1
-        self.word2 = word2
-        self.raw1 = sentence1
-        self.raw2 = sentence2
-        self.ste1 = None #cleaned data for sentence 1
-        self.ste2 = None #cleaned data for sentence 2
         
+#class for Generic dataset with context  
+class Work_Data(object):
+    def __init__(self):
+        self.word1 = None
+        self.pos1 = None
+        self.word2 = None
+        self.pos2 = None
+        self.sent1 = None #target word  between <b> </b>
+        self.sent2 = None #target word  between <b> </b>
+        self.simvalue = None
+                     
 class WN_Token_Data(object):
     def __init__(self, word1, word2):
         self.word1 = word1
@@ -56,7 +58,7 @@ class WNData(object):
 class WordsData(object):
     def __init__(self, word):
         self.word = word #word itself
-        self.wndatapack = None #list of WNData
+        self.wndatapack = None #list of WNData items
         self.prime_sys = None #the 'PrimeData' containing SynsetID, Offset and POS for later retrieval   
 
 #prime 'SynsetData'(prime_sys) in  'WordsData'   

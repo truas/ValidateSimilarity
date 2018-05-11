@@ -22,8 +22,8 @@ def nocontext_sim(tokens, trained_model, type_range, metric='avgsim'):
     for token in tokens:
         word_a = token.word1
         word_b = token.word2
-        synsets_a = wn.synsets(word_a)  # @UndefinedVariable
-        synsets_b = wn.synsets(word_b)  # @UndefinedVariable
+        synsets_a = sp.synset_all(word_a)
+        synsets_b = sp.synset_all(word_b)
         
         #clean synsets that only exist in the model
         vec_syna = sp.validate_synsets_model(word_a, synsets_a, trained_model)
@@ -75,6 +75,7 @@ def maxSim(vecs_a, vecs_b, type_range):
   
     return(new_high)         
 #calculates the highest similarity between two word-synsets      
+
 #===============================================================================
 # CONTEXT SIMILARITY
 #===============================================================================
@@ -85,11 +86,11 @@ def context_sim(new_tokens, trained_model, type_range, metric='maxsimc'):
         word_a = new_token.word1
         word_b = new_token.word2
         #list of synset pairs
-        synsets_a = wn.synsets(word_a)  # @UndefinedVariable
-        synsets_b = wn.synsets(word_b)  # @UndefinedVariable
+        synsets_a = sp.synset_all(word_a)
+        synsets_b = sp.synset_all(word_b)
         #average vector for the context for each word
-        context_a = context_parser(word_a, new_token.ste1, trained_model)
-        context_b = context_parser(word_b, new_token.ste2, trained_model)
+        context_a = context_parser(word_a, new_token.sent1, trained_model)
+        context_b = context_parser(word_b, new_token.sent2, trained_model)
         #clean synsets that only exist in the model
         vec_syna = sp.validate_synsets_model(word_a, synsets_a, trained_model)
         vec_synb = sp.validate_synsets_model(word_b, synsets_b, trained_model)
@@ -110,7 +111,7 @@ def context_parser(anchor_word, text_items, trained_model):
     context_vector = []
     for text_item in text_items:
         #if text_item == anchor_word: continue #discard the target/anchor word from the context - avoid bias
-        synsets = wn.synsets(text_item) # @UndefinedVariable
+        synsets = sp.synset_all(text_item)
         for synset in synsets:
             key = sp.key_parser(text_item, synset)
             try:
@@ -199,13 +200,12 @@ def wn_context_sim(new_tokens, trained_model, type_range, metric='maxsimc'):
         word_a = token.word1
         word_b = token.word2
         #list of synset pairs
-        synsets_a = wn.synsets(word_a)  # @UndefinedVariable
-        synsets_b = wn.synsets(word_b)  # @UndefinedVariable
+        synsets_a = sp.synset_all(word_a)
+        synsets_b = sp.synset_all(word_b)
         
         #average vector for the context for each word
-        context_a = wn_context_parser(token.context1, trained_model) if token.context1 else 0.0
-        context_b = wn_context_parser(token.context2, trained_model) if token.context1 else 0.0
-        
+        context_a = wn_context_parser(token.context1, trained_model) if token.context1 else [0.0]
+        context_b = wn_context_parser(token.context2, trained_model) if token.context1 else [0.0]
         
         #clean synsets that only exist in the model
         vec_syna = sp.validate_synsets_model(word_a, synsets_a, trained_model)

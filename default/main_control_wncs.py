@@ -24,7 +24,7 @@ from stop_words import get_stop_words
 in_foname = 'C:/tmp_project/ValidateSimilarity/input_cs'
 ou_foname = 'C:/tmp_project/ValidateSimilarity/output'
 mo_w2v = 'C:/Users/terry/Documents/Datasets/GoogleNews/GoogleNews-vectors-negative300.bin'
-mo_s2v = 'C:/Users/terry/Documents/Datasets/Wikipedia_Dump/2010_04_08/models/300d-hs-15w-10mc-cbow.model'
+mo_s2v = 'C:/Users/terry/Documents/Datasets/Wikipedia_Dump/2010_04_08/models/refine/300d-15w-10mc-hs-cbow-rf.model'
 
 
 range_category = {'cos': 0, 'ws353': 1, 'simlex': 1,'stanford': 1, 'simverb': 1, 'rg65': 2, 'mc28': 2, 'yp130': 2, 'men': 3}
@@ -78,7 +78,7 @@ if __name__ == '__main__':
     #Loads
     w2v_model = gensim.models.KeyedVectors.load_word2vec_format(mo_w2v, binary=True) #in case word2vec is provided
     s2v_model = gensim.models.KeyedVectors.load(mo_s2v) #model.load used with .model extension - this files has to be in the same folder as its .npy
-
+    refi_flag = False
     results = ""
     
     docs = io.doclist_multifolder(in_foname)#creates list of documents to parse
@@ -87,11 +87,10 @@ if __name__ == '__main__':
    
       
    #============================================================================
-   #Stanford - 4
+   #WordSimilarity with Context
    #============================================================================
-    tokens = pr.process_stanford(docs[0])
-    wn_tokens = sp.sentence_adapter(tokens)
-    wn_tokens_processed = sp.wn_sentence_handler(wn_tokens, w2v_model)
+    tokens = pr.sentece_wrapper(docs[0])
+    wn_tokens_processed = sp.wn_sentence_handler(tokens, w2v_model, refi_flag)
     better_tokens = sc.wn_context_sim(wn_tokens_processed,s2v_model, range_category['stanford'], MC)
     results += sc.spearman_pearson_correlation(tokens, better_tokens)
 
