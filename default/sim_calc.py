@@ -221,8 +221,6 @@ def wn_context_sim(new_tokens, trained_model, type_range, metric='maxsimc'):
         elif metric == 'globalsimc':
             sim_value = globalSimC(context_a, context_b, type_range)
         
-        print(word_a, word_b, sim_value)
-        
         token_prime = bench_data.Token_Data(word_a, word_b, sim_value)
         moretokens.append(token_prime)
     return(moretokens)    
