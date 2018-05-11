@@ -14,7 +14,6 @@ import os
 
 #from-imports
 from default import io_operations as io
-from default import process_synsets as pr
 from default import semantic_parser as sp
 from default import sim_calc as sc
 from datetime import timedelta
@@ -87,7 +86,7 @@ if __name__ == '__main__':
    #============================================================================
    #Stanford - 4
    #============================================================================
-    tokens = pr.sentece_wrapper(docs[0])
+    tokens = io.sentece_wrapper(docs[0])
     better_tokens = sc.context_sim(tokens, trained_w2v_model, range_category['stanford'], MC)
     results += sc.spearman_pearson_correlation(tokens, better_tokens)
 

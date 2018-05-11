@@ -13,7 +13,6 @@ import argparse #for command line arguments
 import os
 
 #from-imports
-from default import process_synsets as pr
 from default import io_operations as io
 from default import sim_calc as sc
 from stop_words import get_stop_words
@@ -84,7 +83,7 @@ if __name__ == '__main__':
    #============================================================================
    # MEN - 0
    #============================================================================
-    tokens = pr.process_men(docs[0])
+    tokens = io.process_men(docs[0])
     new_tokens = sc.nocontext_sim(tokens, trained_w2v_model, range_category['men'], MC)
     #io.write_ind_tokens(ou_foname, docsnames[0], new_tokens)
     results += sc.spearman_pearson_correlation(tokens, new_tokens)
@@ -92,7 +91,7 @@ if __name__ == '__main__':
    #============================================================================
    # RG65 - 1
    #============================================================================
-    tokens = pr.process_rg65(docs[1])
+    tokens = io.process_rg65(docs[1])
     new_tokens = sc.nocontext_sim(tokens, trained_w2v_model, range_category['rg65'], MC)
     #io.write_ind_tokens(ou_foname, docsnames[1], new_tokens)
     results += sc.spearman_pearson_correlation(tokens, new_tokens)
@@ -100,7 +99,7 @@ if __name__ == '__main__':
    #============================================================================
    #SIMLEX999 - 2
    #============================================================================
-    tokens = pr.process_simlex999(docs[2])
+    tokens = io.process_simlex999(docs[2])
     new_tokens = sc.nocontext_sim(tokens, trained_w2v_model, range_category['simlex'], MC)
     #io.write_ind_tokens(ou_foname, docsnames[2], new_tokens)
     results += sc.spearman_pearson_correlation(tokens, new_tokens)
@@ -108,7 +107,7 @@ if __name__ == '__main__':
    #============================================================================
    #wsim353 - 3
    #============================================================================
-    tokens = pr.process_ws353(docs[3])
+    tokens = io.process_ws353(docs[3])
     new_tokens = sc.nocontext_sim(tokens, trained_w2v_model, range_category['ws353'], MC)
     #io.write_ind_tokens(ou_foname, docsnames[3], new_tokens)
     results += sc.spearman_pearson_correlation(tokens, new_tokens)
@@ -116,7 +115,7 @@ if __name__ == '__main__':
    #============================================================================
    #Stanford - 4
    #============================================================================
-    tokens = pr.process_stanford(docs[4])
+    tokens = io.process_stanford(docs[4])
     new_tokens = sc.nocontext_sim(tokens, trained_w2v_model, range_category['stanford'], MC)
     #io.write_ind_tokens(ou_foname, docsnames[4], new_tokens)
     results += sc.spearman_pearson_correlation(tokens, new_tokens)
@@ -124,7 +123,7 @@ if __name__ == '__main__':
    #============================================================================
    #MC-28 - 5
    #============================================================================
-    tokens = pr.process_mc28(docs[5])
+    tokens = io.process_mc28(docs[5])
     new_tokens = sc.nocontext_sim(tokens, trained_w2v_model, range_category['mc28'], MC)
     #io.write_ind_tokens(ou_foname, docsnames[5], new_tokens)
     results += sc.spearman_pearson_correlation(tokens, new_tokens)  
@@ -132,7 +131,7 @@ if __name__ == '__main__':
    #============================================================================
    #YP-130 - 6
    #============================================================================
-    tokens = pr.process_yp130(docs[6])
+    tokens = io.process_yp130(docs[6])
     new_tokens = sc.nocontext_sim(tokens, trained_w2v_model, range_category['yp130'], MC)
     #io.write_ind_tokens(ou_foname, docsnames[6], new_tokens)
     results += sc.spearman_pearson_correlation(tokens, new_tokens)
@@ -140,7 +139,7 @@ if __name__ == '__main__':
    #============================================================================
    #SimVerb-3500 - 7
    #============================================================================
-    tokens = pr.process_simverb(docs[7])
+    tokens = io.process_simverb(docs[7])
     new_tokens = sc.nocontext_sim(tokens, trained_w2v_model, range_category['simverb'], MC)
     #io.write_ind_tokens(ou_foname, docsnames[7], new_tokens)
     results += sc.spearman_pearson_correlation(tokens, new_tokens)    

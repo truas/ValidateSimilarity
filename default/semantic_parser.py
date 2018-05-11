@@ -5,34 +5,29 @@ Created on Apr 27, 2018
 '''
 #general libs
 import re
-import numpy
 from nltk.tokenize import RegexpTokenizer
 from stop_words import get_stop_words
 from nltk.corpus import wordnet as wn
 
 #my packages
-from default import process_synsets as ps
 from default import bench_data
 from default import wn_synsets_parser as wsp
-
-
-def key_parser(word, synset):
-    key1 = word.lower() +'#'+str(synset.offset())+'#'+synset.pos()
-    return(key1)
-#parse word/synsets into key format for the model
 
 def validate_synsets_model(word, synsets, trained_model):      
     valid_synsets = []
     for synset in synsets:
         key = key_parser(word, synset)
         try:
-            v1 = trained_model.word_vec(key)
-            valid_synsets.append(v1) #put all vector words in the sentence together and average
+            vec = trained_model.word_vec(key)
+            valid_synsets.append(vec) #put all vector words in the sentence together and average
         except KeyError:
-            #print(key, "@ is not in the model")
             pass #key not in the model
     return (valid_synsets) #if the key is not on the model, it will return an empty list of valid synets
- #creates a list of synsetkeys that exist in the trained model
+#creates a list of synsetkeys that exist in the trained model
+
+#===============================================================================
+#  TEXT CLEAN
+#===============================================================================
 
 def tokenize_text(text):
     tokenizer = RegexpTokenizer(r'\w+')
@@ -50,7 +45,7 @@ def tokenize_text(text):
 #cleans gloss words from numbers and stopwords
 
 #===============================================================================
-# WordNet Stuff
+# WordNet Manipulators
 #===============================================================================
 def wn_sentence_handler(tokens_wn, trained_model, refi_flag = False):
     wn_token_objects = []
@@ -58,8 +53,8 @@ def wn_sentence_handler(tokens_wn, trained_model, refi_flag = False):
     for token_wn in tokens_wn:
         
         if refi_flag:
-            clean_context_a = validate_context_model(token_wn.sent1, refi_flag)
-            clean_context_b = validate_context_model(token_wn.sent2, refi_flag)
+            clean_context_a = validate_context_model(token_wn.sent1, trained_model)
+            clean_context_b = validate_context_model(token_wn.sent2, trained_model)
         else:               
             clean_context_a = validate_context_wn(token_wn.sent1)
             clean_context_b = validate_context_wn(token_wn.sent2)
@@ -67,19 +62,20 @@ def wn_sentence_handler(tokens_wn, trained_model, refi_flag = False):
         if not clean_context_a:
             context_a_representation = None
         else:
-            pcontex_a = wsp.build_word_data(clean_context_a,trained_model,refi_flag)
-            context_elems_a = wsp.gloss_average_np(pcontex_a, trained_model,refi_flag)
-            context_bsds_a = wsp.make_bsd(context_elems_a,refi_flag)
+            pccontext_a = wsp.build_word_data(clean_context_a, trained_model, refi_flag)
+            context_elems_a = wsp.gloss_average_np(pccontext_a, trained_model, refi_flag)
+            context_bsds_a = wsp.make_bsd(context_elems_a, refi_flag)
             context_a_representation = wn_key_parser(context_bsds_a)
         
         if not clean_context_b:
             context_b_representation = None
         else:
-            pcontex_b = wsp.build_word_data(clean_context_b,trained_model, refi_flag)
-            context_elems_b = wsp.gloss_average_np(pcontex_b, trained_model, refi_flag)
+            pccontext_b = wsp.build_word_data(clean_context_b,trained_model, refi_flag)
+            context_elems_b = wsp.gloss_average_np(pccontext_b, trained_model, refi_flag)
             context_bsds_b = wsp.make_bsd(context_elems_b, refi_flag)
             context_b_representation = wn_key_parser(context_bsds_b)
         
+        #WN Token with word pair and context representation ready for similarity
         wn_token_obj = bench_data.WN_Token_Data(token_wn.word1, token_wn.word2)
         wn_token_obj.context1 = context_a_representation
         wn_token_obj.context2 = context_b_representation
@@ -106,14 +102,31 @@ def validate_context_model(sentence_tokens, trained_model):
         synsets = synset_all(sentence_token) 
         for synset in synsets:
             try:
-                key = refined_key_parser(sentence_token, synset.offset(), synset.pos())
-                vec = trained_model.word_vector(key)
+                key = key_parser(sentence_token, synset)
+                vec = trained_model.word_vec(key)
                 valid_tokens.append(sentence_token)
                 break #if one synset is in the model that's enough for a valid token
             except KeyError:
                 pass
     return(valid_tokens)    
 #take elements that only exist in the model  
+
+def synset_all(word):
+    return wn.synsets(word)  # @UndefinedVariable
+#synsets for all POS
+
+def synset_pos(word, cat):
+    return wn.synsets(word, cat)  # @UndefinedVariable
+#synsets for specific POS       
+ 
+#==============================================================================
+#Simple Key Parser 
+#==============================================================================
+ 
+def key_parser(word, synset):
+    return(word.lower() +'#'+str(synset.offset())+'#'+synset.pos())
+
+#parse word/synsets into key format for the model
  
 def wn_key_parser(words_data):
     bsd_items = []
@@ -124,10 +137,6 @@ def wn_key_parser(words_data):
     return(bsd_items)
 #parse word/synsets into key format for the model - for WN-BSD entries
   
-def refined_key_parser(word, offset, pos):
-    return(word.lower() +'#'+str(offset)+'#'+pos)
-#Transforms word,offset,pos into key that is used in synset2vec model
- 
 def retrieve_synsetvec(key, model):
     try:
         tmp_vec = model.word_vec(key)
@@ -136,11 +145,5 @@ def retrieve_synsetvec(key, model):
     return(tmp_vec)
 #returns the dimension/values of a key in a word-embedding model
 
-def synset_all(word):
-    return wn.synsets(word)  # @UndefinedVariable
-#synsets for all POS
 
-def synset_pos(word, cat):
-    return wn.synsets(word, cat)  # @UndefinedVariable
-#synsets for specific POS       
     

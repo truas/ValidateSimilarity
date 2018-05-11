@@ -55,7 +55,7 @@ def build_synset_packages_refi(word, embed_model, *pos):
         synsets = sp.synset_pos(word,pos)
     
     for synset in synsets:#create list of Synsets, offset, POS
-        key = sp.refined_key_parser(word, synset.offset(), synset.pos())
+        key = sp.key_parser(word, synset)
         wpack = bench_data.WNData(synset, synset.offset(), synset.pos(), synset.definition())
         vec = sp.retrieve_synsetvec(key, embed_model)
         wpack.vector = vec
